@@ -1,2 +1,1 @@
-# databaseCourse
 FEFU database course 
