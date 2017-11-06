@@ -1,0 +1,41 @@
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+header#page-header {
+    height: 80px;
+	background-color: #3F51B5;
+}
+.text-center{
+	color: white;
+	font-family: 'Roboto', sans-serif;
+}
+header#page-header > div.row {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+a{
+	font-family: 'Roboto', sans-serif;
+	color: #3F51B5;
+}
+
+.footer {
+	background-color: #3F51B5;
+	text-align: center;
+	height: 50px;
+}
+
+.text-right{
+	padding-right: 5px;
+}
+
+.button-search{
+	background-color: #3F51B5;
+	height: 100%;
+	width: 100%;
+	text-align: center;
+}
+
+
+
