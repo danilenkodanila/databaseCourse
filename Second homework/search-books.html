@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Библиотека</title>
+    <title>Поиск книги</title>
     <link rel="stylesheet" href="css/foundation.css">
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="style.css">
@@ -19,12 +19,28 @@
       </div>
     </header>
 
-  <ul class="vertical menu">
-    <li><a href="readers-books.html">Поиск читателя</a></li>
-    <li><a href="search-books.html">Поиск книги</a></li>
-    <li><a href="get-book.html">Выдать книгу</a></li>
-    <li><a href="utilities.html">Инструменты</a></li>
-  </ul>
+<form>
+<div class="grid-x">
+  <div class="small-12 medium-2 large-2 columns"></div>
+  <div class="small-12 medium-2 large-2 columns">
+     <input class="name" placeholder="Автор" value="" aria-describedby="name-format" required>
+  </div>
+  <div class="small-12 medium-2 large-2 columns">
+     <input class="name" placeholder="Название книги" value="" aria-describedby="name-format" required>
+  </div>
+  <div class="small-12 medium-2 large-2 columns">
+     <input class="name" placeholder="id книги" value="" aria-describedby="name-format" required>
+  </div>
+  <div class="small-12 medium-2 large-2 columns">
+    <button class="button-search" type="submit" value="Submit">Поиск</button>
+  </div>
+  <div class="small-12 medium-2 large-2 columns"></div>
+</div>
+</form>
+
+  
+
+</div>
                    
   <div class="footer">
   </div>
@@ -34,5 +50,8 @@
     <script src="js/vendor/what-input.js"></script>
     <script src="js/vendor/foundation.js"></script>
     <script src="js/app.js"></script>
+    <script type="text/javascript">
+    $(document).foundation();
+    </script>
   </body>
 </html>
