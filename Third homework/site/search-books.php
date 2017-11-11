@@ -21,36 +21,45 @@
 
 <form action="search-books.php" method="post">
 <div class="grid-x">
-  <div class="small-12 medium-2 large-1 columns"></div>
-  <div class="small-12 medium-2 large-1 columns"></div>
-  <div class="small-12 medium-2 large-1 columns"></div>
-  <div class="small-12 medium-2 large-1 columns">
+  <div class="small-12 medium-1 large-1 columns"></div>
+  <div class="small-12 medium-1 large-1 columns">
+
+  </div>
+  <div class="small-12 medium-1 large-1 columns"></div>
+  <div class="small-12 medium-1 large-1 columns">
      <input class="name" name="id" placeholder="id" value="" aria-describedby="name-format">
   </div>
-  <div class="small-12 medium-2 large-1 columns">
+  <div class="small-12 medium-1 large-1 columns">
      <input class="name" name="author" placeholder="Автор" value="" aria-describedby="name-format">
   </div>
-  <div class="small-12 medium-2 large-1 columns">
+  <div class="small-12 medium-1 large-1 columns">
      <input class="name" name="title" placeholder="Название" value="" aria-describedby="name-format">
   </div>
-  <div class="small-12 medium-2 large-1 columns">
-     <input class="name" name="id_genre" placeholder="Жанр" value="" aria-describedby="name-format">
+  <div class="small-12 medium-1 large-1 columns">
+     <input class="name" name="id_genre" placeholder="Жанр id" value="" aria-describedby="name-format">
   </div>
-  <div class="small-12 medium-2 large-1 columns">
+  <div class="small-12 medium-1 large-1 columns custom">
      <input id="checkbox1" name="amount" type="checkbox"><label for="checkbox1">Наличие</label>
   </div>
-  <div class="small-12 medium-2 large-1 columns">
+  <div class="small-12 medium-1 large-1 columns">
     <button class="button-search" type="submit" value="Submit">Поиск</button>
   </div>
-  <div class="small-12 medium-2 large-1 columns"></div>
 </div>
 </form>
 
-  
 
-</div>
 
 <?php
+
+  function noValue(){
+    echo'<div class="grid-x">
+           <div class="small-3 large-3 medium-3 columns"></div>
+           <div class="small-6 large-6 medium-6 columns et">Результатов нет</div>
+           <div class="small-3 large-3 medium-3 columns"></div>
+         </div>';
+  }
+
+
   $user = "admin";
   $pass = "76543210";
   try {
@@ -60,107 +69,167 @@
   }
 
 
-
+  //если запрос не пустой
   if (!empty($_POST)){
+
     $id = $_POST['id'];
     $name = $_POST['author'];
     $email = $_POST['title'];
     $id_genre = $_POST['id_genre'];
-    $sql = "SELECT * FROM books WHERE ";
-    $array = [];
-    $resultArray = [];
-    // $data = $dbh->query('SELECT * FROM readers')->fetchAll(PDO::FETCH_COLUMN);
-    // var_dump($data);
-    if ($id <> "" || $email <> "" || $name <> "" || $id_genre <>""){
-      foreach($_POST as $key=>$value) {
-        if(strlen($value)<>0) {
-          $sql .= $key." = ? AND ";
-          array_push($array,$value);
+
+    //если галочка "в наличии" не поставлена
+    if (empty($_POST['amount'])){
+      $sql = "SELECT * FROM books WHERE ";
+      $array = [];
+      $resultArray = [];
+
+      //проверяем заполнена ли хотя бы одна форма
+      if ($id <> "" || $email <> "" || $name <> "" || $id_genre <>""){
+
+        //создаем запрос 
+        foreach($_POST as $key=>$value) {
+          if(strlen($value)<>0) {
+            $sql .= $key." = ? AND ";
+            array_push($array,$value);
+          }
         }
-      }
+        //небольшой костыль: обрезаем последний AND
+        $sql = substr($sql, 0, -5);
+
+        $sth = $dbh->prepare($sql);
+        $sth->execute($array);
+        $result = $sth->fetchAll();
+
+        if (!empty($result)){
+          echo '<div class="grid-x"><div class="small-12 medium-3 large-3 columns">
+                </div>
+                <div class="small-12 medium-4 large-6 columns">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th width="50">id</th>
+                        <th width="200">Автор</th>
+                        <th width="200">Название</th>
+                        <th width="200">Жанр</th>
+                        <th width="200">Цена</th>
+                        <th width="200">Наличие</th>
+                      </tr>
+                    </thead>
+                    <tbody>';
+
+            foreach($result as $row) {
+              echo "<td>";
+              echo ($row["id"]);
+              echo "</td><td>";
+              echo ($row["author"]);
+              echo "</td><td>";
+              echo ($row["title"]);
+              echo "</td><td>";
+
+              $sth1 = $dbh->prepare("SELECT name FROM genre WHERE id = ?");
+              $sth1->execute(array($row['id_genre']));
+              $result1 = $sth1->fetchAll();
+
+              echo($result1[0]['name']);
+              echo "</td><td>";
+              echo($row["price"]);
+              echo "</td><td>";
+
+              if ($row["amount"]>0){
+                echo "Есть";
+              } else {
+                echo "Нет";
+              }
+              echo "</td></tr>";
+            }
+          echo '</tbody>
+              </table>
+            </div>
+            <div class="small-12 medium-3 large-3 columns">
+            </div>
+          </div>';
+          } else {
+            noValue();
+          }
+        } else {
+          noValue();
+        }
+    } else {
+      $sql = "SELECT * FROM books WHERE ";
+      $array = [];
+      $resultArray = [];
+
+      if ($id <> "" || $email <> "" || $name <> "" || $id_genre <>""){
+        foreach($_POST as $key=>$value) {
+          if($key<>'amount'){
+            if(strlen($value)<>0) {
+              $sql .= $key." = ? AND ";
+              array_push($array,$value);
+            }
+          }
+        }
+
       $sql = substr($sql, 0, -5);
-      // var_dump($sql);
-      // var_dump($array);
       $sth = $dbh->prepare($sql);
       $sth->execute($array);
       $result = $sth->fetchAll();
-      // var_dump($sth);
-      // var_dump($result);
-    echo '<div class="grid-x"><div class="small-12 medium-3 large-3 columns">
+
+      if (count($result)==1 && $result[0]["amount"]==0){
+         noValue();
+        } else {
+          echo '<div class="grid-x"><div class="small-12 medium-3 large-3 columns">
+              </div>
+              <div class="small-12 medium-4 large-6 columns">
+                <table>
+                  <thead>
+                    <tr>
+                      <th width="50">id</th>
+                      <th width="200">Автор</th>
+                      <th width="200">Название</th>
+                      <th width="200">Жанр</th>
+                      <th width="200">Цена</th>
+                      <th width="200">Наличие</th>
+                    </tr>
+                  </thead>
+                  <tbody>';
+        foreach($result as $row) {
+          if ($row["amount"]>0){
+            echo "<td>";
+            echo ($row["id"]);
+            echo "</td><td>";
+            echo ($row["author"]);
+            echo "</td><td>";
+            echo ($row["title"]);
+            echo "</td><td>";
+
+            $sth1 = $dbh->prepare("SELECT name FROM genre WHERE id = ?");
+            $sth1->execute(array($row['id_genre']));
+            $result1 = $sth1->fetchAll();
+
+            echo($result1[0]['name']);
+            echo "</td><td>";
+            echo($row["price"]);
+            echo "</td><td>";
+
+            if ($row["amount"]>0){
+              echo "Есть";
+            } else {
+              echo "Нет";
+            }
+            echo "</td></tr>";
+            } 
+        }
+        echo '</tbody>
+            </table>
           </div>
-          <div class="small-12 medium-4 large-6 columns">
-            <table>
-              <thead>
-                <tr>
-                  <th width="50">id</th>
-                  <th width="200">Автор</th>
-                  <th width="200">Название</th>
-                  <th width="200">Жанр</th>
-                  <th width="200">Цена</th>
-                  <th width="200">Наличие</th>
-                </tr>
-              </thead>
-              <tbody>';
-
-    foreach($result as $row) {
-      echo "<td>";
-      echo($row["id"]);
-      echo "</td>
-          <td>";
-      echo($row["author"]);
-      echo "</td>
-          <td>";
-      echo($row["title"]);
-      echo "</td>
-          <td>";
-      echo($row["id_genre"]);
-      echo "</td>
-          <td>";
-      echo($row["price"]);
-      echo "</td>
-          <td>";
-      echo($row["amount"]);
-      echo "</td>
-        </tr>";
-
-      // array_push($resultArray,$row["name"]);
-      // array_push($resultArray, array("id"=>$row["id"],"name"=>$row["name"],"email"=>$row["email"],"phone"=>$row["phone"]));
+          <div class="small-12 medium-3 large-3 columns">
+          </div>
+        </div>';
+        }
+      } else {
+        noValue();
+      }
     }
-    echo '</tbody>
-        </table>
-      </div>
-      <div class="small-12 medium-3 large-3 columns">
-      </div>
-    </div>';
-    }
-
-
-    // foreach($result as $row) {
-    //     print_r($row['name']);
-    // }
-    // if ($name == '' && $email == '' && $phone == ''){
-    //   if ($name <> ''){
-    //     $sql += "name = ?";
-    //   }
-    //   if ($email <> ''){
-    //     $sql += "";
-    //   }
-    //   if ($phone <> ''){
-    //     $sql += "";
-    //   }
-    //   var_dump($phone);
-
-      // $sth = $dbh->prepare($sql);
-      // $sth->execute(array($name));
-      // var_dump($sth);
-
-
-      // $result = $sth->fetchAll();
-      // foreach($result as $row) {
-      //     print_r($row['name']);
-      // }
-    // }
-    // var_dump($result);
   }
 
 ?>

@@ -62,8 +62,6 @@
       die('Подключение не удалось: ' . $e->getMessage());
   }
 
-
-
   if (!empty($_POST)){
     $id = $_POST['id'];
     $name = $_POST['name'];
@@ -72,8 +70,7 @@
     $sql = "SELECT * FROM readers WHERE ";
     $array = [];
     $resultArray = [];
-    // $data = $dbh->query('SELECT * FROM readers')->fetchAll(PDO::FETCH_COLUMN);
-    // var_dump($data);
+
     if ($id <> "" || $email <> "" || $phone <> "" || $name <> ""){
       foreach($_POST as $key=>$value) {
         if(strlen($value)<>0) {
@@ -82,86 +79,55 @@
         }
       }
       $sql = substr($sql, 0, -5);
-      // var_dump($sql);
-      // var_dump($array);
+
       $sth = $dbh->prepare($sql);
       $sth->execute($array);
       $result = $sth->fetchAll();
-      // var_dump($sth);
-      // var_dump($result);
-    echo '<div class="grid-x"><div class="small-12 medium-3 large-3 columns">
+      if (!empty($result)){
+        echo '<div class="grid-x"><div class="small-12 medium-3 large-3 columns">
+            </div>
+            <div class="small-12 medium-4 large-6 columns">
+              <table>
+                <thead>
+                  <tr>
+                    <th width="50">id</th>
+                    <th width="200">Имя</th>
+                    <th width="200">Почта</th>
+                    <th width="200">Телефон</th>
+                  </tr>
+                </thead>
+                <tbody>';
+
+        foreach($result as $row) {
+          echo "<td>";
+          echo ($row["id"]);
+          echo "</td><td>";
+          echo ($row["name"]);
+          echo "</td><td>";
+          echo ($row["email"]);
+          echo "</td><td>";
+          echo ($row["phone"]);
+          echo "</td></tr>";
+        }
+        echo '</tbody>
+            </table>
           </div>
-          <div class="small-12 medium-4 large-6 columns">
-            <table>
-              <thead>
-                <tr>
-                  <th width="50">id</th>
-                  <th width="200">Имя</th>
-                  <th width="200">Почта</th>
-                  <th width="200">Телефон</th>
-                </tr>
-              </thead>
-              <tbody>';
-
-    foreach($result as $row) {
-      echo "<td>";
-      echo($row["id"]);
-      echo "</td>
-          <td>";
-      echo($row["name"]);
-      echo "</td>
-          <td>";
-      echo($row["email"]);
-      echo "</td>
-          <td>";
-      echo($row["phone"]);
-      echo "</td>
-        </tr>";
-
-      // array_push($resultArray,$row["name"]);
-      // array_push($resultArray, array("id"=>$row["id"],"name"=>$row["name"],"email"=>$row["email"],"phone"=>$row["phone"]));
-    }
-    echo '</tbody>
-        </table>
-      </div>
-      <div class="small-12 medium-3 large-3 columns">
-      </div>
-    </div>';
-    }
-
-
-    // foreach($result as $row) {
-    //     print_r($row['name']);
-    // }
-    // if ($name == '' && $email == '' && $phone == ''){
-    //   if ($name <> ''){
-    //     $sql += "name = ?";
-    //   }
-    //   if ($email <> ''){
-    //     $sql += "";
-    //   }
-    //   if ($phone <> ''){
-    //     $sql += "";
-    //   }
-    //   var_dump($phone);
-
-      // $sth = $dbh->prepare($sql);
-      // $sth->execute(array($name));
-      // var_dump($sth);
-
-
-      // $result = $sth->fetchAll();
-      // foreach($result as $row) {
-      //     print_r($row['name']);
-      // }
-    // }
-    // var_dump($result);
+          <div class="small-12 medium-3 large-3 columns">
+          </div>
+        </div>';
+        }
+        else {
+          echo'<div class="grid-x">
+             <div class="small-3 large-3 medium-3 columns"></div>
+             <div class="small-6 large-6 medium-6 columns et">Результатов нет</div>
+             <div class="small-3 large-3 medium-3 columns"></div>
+           </div>';
+        }
+      } 
   }
 
+
 ?>
-
-  
-
 </div>
                    
   <div class="footer">
