@@ -49,3 +49,12 @@ INSERT INTO `books` (`id`, `author`, `title`, `id_genre`, `price`, `amount`) VAL
 ('5', 'Паланик', 'Бойцовский клуб', '7', '200', '+2'),
 ('6', 'Соколов-Митрич', 'Яндекс.Книга', '4', '210', '52'),
 ('7', 'Кафка', 'Замок', '5', '100', '5');
+
+CREATE TABLE `issue` (
+  `id_reader` int(11) NOT NULL,
+  `id_book` int(11) NOT NULL,
+  `date_s` date NOT NULL,
+  `date_e` date,
+   FOREIGN KEY (`id_reader`) REFERENCES `readers` (`id`),
+   FOREIGN KEY (`id_book`) REFERENCES `books` (`id`) 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
