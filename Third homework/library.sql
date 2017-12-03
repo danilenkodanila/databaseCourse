@@ -30,25 +30,46 @@ INSERT INTO `genre` (`id`, `name`) VALUES
 ('6', 'Утопия'),
 ('7', 'Сатира');
 
+CREATE TABLE `authors` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(40) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `authors` (`id`, `name`) VALUES
+('1', 'Брэдбери'),
+('2', 'Тиньков'),
+('3', 'Толстой'),
+('4', 'Паланик'),
+('5', 'Соколов-Митрич'),
+('6', 'Кафка'),
+('7', 'Уэлш'),
+('8', 'Буковски'),
+('9', 'Хемингуэй'),
+('10', 'Твен'),
+('11', 'Пушкин'),
+('12', 'Тургенев');
+
 CREATE TABLE `books` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `author` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `id_author` int(11) NOT NULL,
   `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `id_genre` int(11) NOT NULL,
   `price` int(11) NOT NULL,
   `amount` int(11) NOT NULL,
    PRIMARY KEY (`id`),
-   FOREIGN KEY (`id_genre`) REFERENCES `genre` (`id`) 
+   FOREIGN KEY (`id_author`) REFERENCES `authors` (`id`),
+   FOREIGN KEY (`id_genre`) REFERENCES `genre` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO `books` (`id`, `author`, `title`, `id_genre`, `price`, `amount`) VALUES
-('1', 'Брэдбери', '451 градус по Фаренгейту', '6', '200', '2'),
-('2', 'Брэдбери', 'Вино из одуванчиков', '2', '300', '20'),
-('3', 'Тиньков', 'Я такой как все', '1', '2000', '10'),
-('4', 'Толстой', 'Война и Мир', '3', '300', '90'),
-('5', 'Паланик', 'Бойцовский клуб', '7', '200', '+2'),
-('6', 'Соколов-Митрич', 'Яндекс.Книга', '4', '210', '52'),
-('7', 'Кафка', 'Замок', '5', '100', '5');
+INSERT INTO `books` (`id`, `id_author`, `title`, `id_genre`, `price`, `amount`) VALUES
+('1', '1', '451 градус по Фаренгейту', '6', '200', '2'),
+('2', '1', 'Вино из одуванчиков', '2', '300', '20'),
+('3', '2', 'Я такой как все', '1', '2000', '10'),
+('4', '3', 'Война и Мир', '3', '300', '90'),
+('5', '4', 'Бойцовский клуб', '7', '200', '+2'),
+('6', '5', 'Яндекс.Книга', '4', '210', '52'),
+('7', '6', 'Замок', '5', '100', '5');
 
 CREATE TABLE `issue` (
   `id_reader` int(11) NOT NULL,

@@ -21,32 +21,63 @@
 
 <form action="search-books.php" method="post">
 <div class="grid-x">
-  <div class="small-12 medium-1 large-1 columns"></div>
-  <div class="small-12 medium-1 large-1 columns">
-
-  </div>
-  <div class="small-12 medium-1 large-1 columns"></div>
-  <div class="small-12 medium-1 large-1 columns">
+  <div class="cell small-4 medium-1 small-offset-2 medium-offset-3 large-1 large-offset-3">
      <input class="name" name="id" placeholder="id" value="" aria-describedby="name-format">
   </div>
-  <div class="small-12 medium-1 large-1 columns">
+  <div class="cell small-4 medium-1 medium-offset-0 large-1 large-offset-0">
      <input class="name" name="author" placeholder="Автор" value="" aria-describedby="name-format">
   </div>
-  <div class="small-12 medium-1 large-1 columns">
+  <div class="cell small-4 small-offset-2 medium-1 medium-offset-0 large-1 large-offset-0">
      <input class="name" name="title" placeholder="Название" value="" aria-describedby="name-format">
   </div>
-  <div class="small-12 medium-1 large-1 columns">
-     <input class="name" name="id_genre" placeholder="Жанр id" value="" aria-describedby="name-format">
+  <div class="cell small-4 medium-1 medium-offset-0 large-1 large-offset-0">
+     <input class="name" name="id_genre" placeholder="Жанр" value="" aria-describedby="name-format">
+    <!--  <select name="id_genre">
+     <?php
+      $user = "admin";
+      $pass = "76543210";
+      try {
+        $dbh = new PDO('mysql:host=localhost;dbname=library;charset=utf8', $user, $pass);
+      } catch (PDOException $e) {
+          die('Подключение не удалось: ' . $e->getMessage());
+      } 
+      $sql = "SELECT name FROM genre";
+      $sth = $dbh->query($sql);
+      $result = $sth->fetchAll();
+      var_dump($result);
+      foreach ($result as &$value) {
+          echo "<option>$value[0]</option>";
+      }
+    ?>
+    </select> -->
   </div>
-  <div class="small-12 medium-1 large-1 columns custom">
-     <input id="checkbox1" name="amount" type="checkbox"><label for="checkbox1">Наличие</label>
+  <div class="cell small-4 small-offset-2 medium-1 medium-offset-0 large-1 large-offset-0">
+     <input id="checkbox1" name="amount" value="Yes" type="checkbox"><label for="checkbox1">Наличие</label>
   </div>
-  <div class="small-12 medium-1 large-1 columns">
+  <div class="cell small-4 medium-1 medium-offset-0 large-1 large-offset-0">
     <button class="button-search" type="submit" value="Submit">Поиск</button>
   </div>
 </div>
 </form>
 
+
+<div class="grid-x">
+  <div class="cell small-10 small-offset-2 medium-12 medium-offset-3 large-12 large-offset-3 th-font-width">
+    <?php
+      $sql = "SELECT SUM(amount) AS atotal from books";
+      $sth = $dbh->query($sql);
+      $result = $sth->fetchAll();
+      $countBooks = $result[0][0];
+      echo "Всего книг: $countBooks. ";
+      $sql = "SELECT count(*) FROM issue WHERE date_e IS NULL";
+      $sth = $dbh->query($sql);
+      $result = $sth->fetchAll();
+      $amountBooks = $countBooks - $result[0][0];
+      echo "Доступных к выдаче: $amountBooks.";
+    ?>
+    <!-- Всего книг: 150. Доступных к выдаче: 100. -->
+  </div>
+</div>
 
 
 <?php
@@ -67,73 +98,75 @@
   } catch (PDOException $e) {
       die('Подключение не удалось: ' . $e->getMessage());
   }
-
-
-  //если запрос не пустой
   if (!empty($_POST)){
-
     $id = $_POST['id'];
     $name = $_POST['author'];
     $email = $_POST['title'];
     $id_genre = $_POST['id_genre'];
-
-    //если галочка "в наличии" не поставлена
+    $amount = false;
     if (empty($_POST['amount'])){
-      $sql = "SELECT * FROM books WHERE ";
-      $array = [];
-      $resultArray = [];
+      $amount = true;
+    } else {
+      $amount = false;
+    }
 
-      //проверяем заполнена ли хотя бы одна форма
-      if ($id <> "" || $email <> "" || $name <> "" || $id_genre <>""){
+    $sql = "SELECT books.id, authors.name as author, books.title, genre.name as genre, books.price, books.amount FROM books INNER JOIN genre ON books.id_genre = genre.id INNER JOIN authors ON books.id_author = authors.id WHERE ";
+    $array = [];
+    $resultArray = [];
+    $keyArray = array(
+      "id"  => "books.id",
+      "author" => "authors.name",
+      "title" => "books.title",
+      "id_genre" => "genre.name"
+    );
 
-        //создаем запрос 
-        foreach($_POST as $key=>$value) {
-          if(strlen($value)<>0) {
-            $sql .= $key." = ? AND ";
+    //проверяем заполнена ли хотя бы одна форма
+    if ($id <> "" || $email <> "" || $name <> "" || $id_genre <>""){
+      foreach($_POST as $key=>$value) {
+        if(strlen($value)<>0) {
+          if($key<>'amount'){ 
+            $sql .= $keyArray[$key]." = ? AND ";
             array_push($array,$value);
           }
         }
-        //небольшой костыль: обрезаем последний AND
+      }
+      if ($amount == true) {
         $sql = substr($sql, 0, -5);
+      } else {
+        $sql .= "books.amount <> 0";
+      }
 
-        $sth = $dbh->prepare($sql);
-        $sth->execute($array);
-        $result = $sth->fetchAll();
-
-        if (!empty($result)){
-          echo '<div class="grid-x"><div class="small-12 medium-3 large-3 columns">
-                </div>
-                <div class="small-12 medium-4 large-6 columns">
+      $sth = $dbh->prepare($sql);
+      $sth->execute($array);
+      $result = $sth->fetchAll();
+      if (!empty($result)){
+        echo '<div class="grid-x">
+                <div class="cell small-8 small-offset-2 medium-6 medium-offset-3 large-6 large-offset-3">
                   <table>
                     <thead>
                       <tr>
-                        <th width="50">id</th>
-                        <th width="200">Автор</th>
-                        <th width="200">Название</th>
-                        <th width="200">Жанр</th>
-                        <th width="200">Цена</th>
-                        <th width="200">Наличие</th>
+                        <th class="th-font-width" width="50">id</th>
+                        <th class="th-font-width" width="200">Автор</th>
+                        <th class="th-font-width" width="200">Название</th>
+                        <th class="th-font-width" width="200">Жанр</th>
+                        <th class="th-font-width" width="200">Цена</th>
+                        <th class="th-font-width" width="200">Наличие</th>
                       </tr>
                     </thead>
                     <tbody>';
 
             foreach($result as $row) {
-              echo "<td>";
+              echo '<td class="td-width50">';
               echo ($row["id"]);
-              echo "</td><td>";
+              echo '</td><td class="td-width50">';
               echo ($row["author"]);
-              echo "</td><td>";
+              echo '</td><td class="td-width50">';
               echo ($row["title"]);
-              echo "</td><td>";
-
-              $sth1 = $dbh->prepare("SELECT name FROM genre WHERE id = ?");
-              $sth1->execute(array($row['id_genre']));
-              $result1 = $sth1->fetchAll();
-
-              echo($result1[0]['name']);
-              echo "</td><td>";
+              echo '</td><td class="td-width50">';
+              echo ($row["genre"]);
+              echo '</td><td class="td-width50">';
               echo($row["price"]);
-              echo "</td><td>";
+              echo '</td><td class="td-width50">';
 
               if ($row["amount"]>0){
                 echo "Есть";
@@ -153,83 +186,8 @@
           }
         } else {
           noValue();
-        }
-    } else {
-      $sql = "SELECT * FROM books WHERE ";
-      $array = [];
-      $resultArray = [];
-
-      if ($id <> "" || $email <> "" || $name <> "" || $id_genre <>""){
-        foreach($_POST as $key=>$value) {
-          if($key<>'amount'){
-            if(strlen($value)<>0) {
-              $sql .= $key." = ? AND ";
-              array_push($array,$value);
-            }
-          }
-        }
-
-      $sql = substr($sql, 0, -5);
-      $sth = $dbh->prepare($sql);
-      $sth->execute($array);
-      $result = $sth->fetchAll();
-
-      if (count($result)==1 && $result[0]["amount"]==0){
-         noValue();
-        } else {
-          echo '<div class="grid-x"><div class="small-12 medium-3 large-3 columns">
-              </div>
-              <div class="small-12 medium-4 large-6 columns">
-                <table>
-                  <thead>
-                    <tr>
-                      <th width="50">id</th>
-                      <th width="200">Автор</th>
-                      <th width="200">Название</th>
-                      <th width="200">Жанр</th>
-                      <th width="200">Цена</th>
-                      <th width="200">Наличие</th>
-                    </tr>
-                  </thead>
-                  <tbody>';
-        foreach($result as $row) {
-          if ($row["amount"]>0){
-            echo "<td>";
-            echo ($row["id"]);
-            echo "</td><td>";
-            echo ($row["author"]);
-            echo "</td><td>";
-            echo ($row["title"]);
-            echo "</td><td>";
-
-            $sth1 = $dbh->prepare("SELECT name FROM genre WHERE id = ?");
-            $sth1->execute(array($row['id_genre']));
-            $result1 = $sth1->fetchAll();
-
-            echo($result1[0]['name']);
-            echo "</td><td>";
-            echo($row["price"]);
-            echo "</td><td>";
-
-            if ($row["amount"]>0){
-              echo "Есть";
-            } else {
-              echo "Нет";
-            }
-            echo "</td></tr>";
-            } 
-        }
-        echo '</tbody>
-            </table>
-          </div>
-          <div class="small-12 medium-3 large-3 columns">
-          </div>
-        </div>';
-        }
-      } else {
-        noValue();
-      }
     }
+
   }
 
 ?>

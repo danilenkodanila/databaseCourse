@@ -70,7 +70,8 @@
     $sth1->execute(array($id_book));
     $result1 = $sth1->fetchAll();
 
-
+  
+  
     //проверяем не пустые ли поля
     if ($id_reader <> "" && $id_book <> "") {
       

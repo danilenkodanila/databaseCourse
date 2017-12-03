@@ -65,7 +65,25 @@ a.button-ut:hover{
 a.button-ut:focus{
 	background: #3F51B5;
 }
+@media screen and (min-width: 0em) and (max-width: 40em) {
+    .td-width50{
+		font-size: 10px;
+	}
+	.th-font-width{
+		font-size: 11px;
+	}
+}
 
-
-
+@media screen and (min-width: 40em) and (max-width: 63.9375em) {
+    .td-width50{
+		font-size: 13px;
+	}
+	.th-font-width{
+		font-size: 14px;
+	}
+}
+.td-width50{
+	max-width: 50px;
+	word-wrap: break-word;
+}
 

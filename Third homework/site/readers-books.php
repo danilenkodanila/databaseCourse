@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="no-js" lang="en" dir="ltr">
+<html class="no-js" lang="ru" dir="ltr">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -21,30 +21,20 @@
 
 <form action="readers-books.php" method="post">
 <div class="grid-x">
-  <div class="small-12 medium-6 large-1 columns">
-  </div>
-  <div class="small-12 medium-6 large-1 columns">
-  </div>
-   <div class="small-12 medium-6 large-1 columns">
-  </div>
-  <div class="small-12 medium-3 large-1 columns">
+  <div class="cell small-4 small-offset-2 medium-1 medium-offset-3 large-1 large-offset-3">
      <input class="name" name="id" placeholder="id" value="" aria-describedby="name-format">
   </div>
-  <div class="small-12 medium-3 large-1 columns">
+  <div class="cell small-4 medium-1 medium-offset-0 large-1 large-offset-0">
      <input class="name" name="name" placeholder="Имя" value="" aria-describedby="name-format">
   </div>
-  <div class="small-12 medium-3 large-1 columns">
+  <div class="cell small-4 small-offset-2 medium-1 medium-offset-0 large-1 large-offset-0">
     <input class="name" name="email" placeholder="Почта" aria-describedby="exampleHelpTex" data-abide-ignore>
   </div>
-  <div class="small-12 medium-3 large-1 columns">
+  <div class="cell small-4 medium-1 medium-offset-0 large-1 large-offset-0">
     <input class="name" name="phone" placeholder="Телефон" aria-describedby="exampleHelpTex" data-abide-ignore>
   </div>
-  <div class="small-12 medium-6 large-1 columns">
-  </div>
-  <div class="small-12 medium-6 large-1 columns">
+  <div class="cell small-8 small-offset-2 medium-1 medium-offset-1 large-1 large-offset-1">
     <button class="button-search" type="submit" value="Submit">Поиск</button>
-  </div>
-  <div class="small-12 medium-6 large-1 columns">
   </div>
 </div>
 </form>
@@ -84,35 +74,32 @@
       $sth->execute($array);
       $result = $sth->fetchAll();
       if (!empty($result)){
-        echo '<div class="grid-x"><div class="small-12 medium-3 large-3 columns">
-            </div>
-            <div class="small-12 medium-4 large-6 columns">
+        echo '<div class="grid-x">
+            <div class="cell small-8 small-offset-2 medium-6 medium-offset-3 large-6 large-offset-3">
               <table>
                 <thead>
                   <tr>
-                    <th width="50">id</th>
-                    <th width="200">Имя</th>
-                    <th width="200">Почта</th>
-                    <th width="200">Телефон</th>
+                    <th class="th-font-width" width="50">id</th>
+                    <th class="th-font-width" width="200">Имя</th>
+                    <th class="th-font-width" width="200">Почта</th>
+                    <th class="th-font-width" width="200">Телефон</th>
                   </tr>
                 </thead>
                 <tbody>';
 
         foreach($result as $row) {
-          echo "<td>";
+          echo '<td class="td-width50">';
           echo ($row["id"]);
-          echo "</td><td>";
+          echo '</td><td class="td-width50">';
           echo ($row["name"]);
-          echo "</td><td>";
+          echo '</td><td class="td-width50">';
           echo ($row["email"]);
-          echo "</td><td>";
+          echo '</td><td class="td-width50">';
           echo ($row["phone"]);
           echo "</td></tr>";
         }
         echo '</tbody>
             </table>
-          </div>
-          <div class="small-12 medium-3 large-3 columns">
           </div>
         </div>';
         }
