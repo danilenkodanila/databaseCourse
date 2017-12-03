@@ -86,4 +86,11 @@ a.button-ut:focus{
 	max-width: 50px;
 	word-wrap: break-word;
 }
-
+/*.content-checkBox {
+  padding: 10px;
+  background-color: #c0ffee;
+  margin-bottom: 10px; 
+}
+  .content-checkBox > #amountTrue {
+    margin: 0;
+}*/

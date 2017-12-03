@@ -53,6 +53,9 @@
   </div>
   <div class="cell small-4 small-offset-2 medium-1 medium-offset-0 large-1 large-offset-0">
      <input id="checkbox1" name="amount" value="Yes" type="checkbox"><label for="checkbox1">Наличие</label>
+     <!-- <div class="content-checkBox">
+         <input id="amountTrue" name="amount" type="checkbox"><label for="amountTrue">Наличие</label>
+        </div> -->
   </div>
   <div class="cell small-4 medium-1 medium-offset-0 large-1 large-offset-0">
     <button class="button-search" type="submit" value="Submit">Поиск</button>
@@ -110,6 +113,8 @@
       $amount = false;
     }
 
+
+
     $sql = "SELECT books.id, authors.name as author, books.title, genre.name as genre, books.price, books.amount FROM books INNER JOIN genre ON books.id_genre = genre.id INNER JOIN authors ON books.id_author = authors.id WHERE ";
     $array = [];
     $resultArray = [];
@@ -150,7 +155,8 @@
                         <th class="th-font-width" width="200">Название</th>
                         <th class="th-font-width" width="200">Жанр</th>
                         <th class="th-font-width" width="200">Цена</th>
-                        <th class="th-font-width" width="200">Наличие</th>
+                        <th class="th-font-width" width="200">Всего</th>
+                        <th class="th-font-width" width="200">В наличие</th>
                       </tr>
                     </thead>
                     <tbody>';
@@ -168,12 +174,23 @@
               echo($row["price"]);
               echo '</td><td class="td-width50">';
 
+              $sql = "SELECT count(*) AS count FROM issue WHERE date_e IS NULL AND id_book = ".$row["id"];
+              $sth = $dbh->query($sql);
+              $result = $sth->fetchAll();
+
               if ($row["amount"]>0){
-                echo "Есть";
+                echo $row["amount"] + $result[0][0];
+    
+                echo '</td><td class="td-width50">';
+                echo $row["amount"];
+                echo "</td></tr>";
               } else {
-                echo "Нет";
+                echo $row["amount"] + $result[0][0];
+                echo '</td><td class="td-width50">';
+                echo $row["amount"];
+                echo "</td></tr>";
               }
-              echo "</td></tr>";
+
             }
           echo '</tbody>
               </table>
