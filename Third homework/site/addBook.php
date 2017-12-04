@@ -94,13 +94,11 @@
 
       if ($id_author == null){
         if ($id_author == null) {
-          echo "null";
           $sth = $dbh->prepare("INSERT INTO authors (name) VALUES(?)");
           $sth->execute(array($_POST['author']));
           $result = $sth->fetchAll();
         } 
         if ($id_genre == null) {
-          echo "null";
           $sth = $dbh->prepare("INSERT INTO genre (name) VALUES(?)");
           $sth->execute(array($_POST['genre']));
           $result = $sth->fetchAll();
@@ -110,20 +108,19 @@
         $id_genre = $result[0][1];
 
         $sql = "INSERT INTO books (id_author, title, id_genre, price, amount) VALUES (?,?,?,?,?)";
-          $result = insertSelect([$id_author,$title,$id_genre,rand(1, 1000),1],$sql);
-          noValue("Книга успешно добавлена");
+        $result = insertSelect([$id_author,$title,$id_genre,rand(1, 1000),1],$sql);
+        noValue("Книга успешно добавлена");
 
       } else {
         if ($id_genre == null) {
-          echo "null";
           $sth = $dbh->prepare("INSERT INTO genre (name) VALUES(?)");
           $sth->execute(array($_POST['genre']));
           $result = $sth->fetchAll();
           $result = insertSelect([$author,$genre],$sql);
           $id_genre = $result[0][1];
         } 
-        $sth1 = $dbh->prepare("SELECT id FROM books WHERE id_author = ? AND title = ? AND id_genre = ?");
-        $sth1->execute(array($id_author,$title,$id_genre));
+        $sth1 = $dbh->prepare("SELECT id FROM books WHERE id_author = ? AND title = ?");
+        $sth1->execute(array($id_author,$title));
         $result1 = $sth1->fetchAll();
         if (!empty($result1)){
           noValue("Такая книга уже есть в базе. Количество увеличино на 1");

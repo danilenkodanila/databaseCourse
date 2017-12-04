@@ -57,22 +57,31 @@
     $name = $_POST['name'];
     $email = $_POST['email'];
     $phone = $_POST['phone'];
-    $sql = "SELECT * FROM readers WHERE ";
+
+    $sql = "SELECT readers.id, readers.name, readers.email, readers.phone, count(issue.id_reader) as issueCount FROM readers LEFT JOIN issue ON readers.id = issue.id_reader WHERE ";
     $array = [];
     $resultArray = [];
+    $keyArray = array(
+      "id"  => "readers.id",
+      "name" => "readers.name",
+      "email" => "readers.email",
+      "phone" => "readers.phone"
+    );
 
     if ($id <> "" || $email <> "" || $phone <> "" || $name <> ""){
       foreach($_POST as $key=>$value) {
         if(strlen($value)<>0) {
-          $sql .= $key." = ? AND ";
+          $sql .= $keyArray[$key]." = ? AND ";
           array_push($array,$value);
         }
       }
       $sql = substr($sql, 0, -5);
+      $sql.= " group by readers.id";
 
       $sth = $dbh->prepare($sql);
       $sth->execute($array);
       $result = $sth->fetchAll();
+      // echo $sql;
       if (!empty($result)){
         echo '<div class="grid-x">
             <div class="cell small-8 small-offset-2 medium-6 medium-offset-3 large-6 large-offset-3">
@@ -88,15 +97,28 @@
                 <tbody>';
 
         foreach($result as $row) {
-          echo '<td class="td-width50">';
-          echo ($row["id"]);
-          echo '</td><td class="td-width50">';
-          echo ($row["name"]);
-          echo '</td><td class="td-width50">';
-          echo ($row["email"]);
-          echo '</td><td class="td-width50">';
-          echo ($row["phone"]);
-          echo "</td></tr>";
+          // echo $row["issueCount"];
+          if ($row["issueCount"] == 0) {
+            echo '<td class="td-width50" style="background-color: white;">';
+            echo ($row["id"]);
+            echo '</td><td class="td-width50" style="background-color: white;">';
+            echo ($row["name"]);
+            echo '</td><td class="td-width50" style="background-color: white;">';
+            echo ($row["email"]);
+            echo '</td><td class="td-width50" style="background-color: white;">';
+            echo ($row["phone"]);
+            echo "</td></tr>";
+          } else {
+            echo '<td class="td-width50" style="background-color: rgba(255,204,188,0.5);">';
+            echo ($row["id"]);
+            echo '</td><td class="td-width50" style="background-color: rgba(255,204,188,0.5);">';
+            echo ($row["name"]);
+            echo '</td><td class="td-width50" style="background-color: rgba(255,204,188,0.5);">';
+            echo ($row["email"]);
+            echo '</td><td class="td-width50" style="background-color: rgba(255,204,188,0.5);">';
+            echo ($row["phone"]);
+            echo "</td></tr>";
+          }
         }
         echo '</tbody>
             </table>

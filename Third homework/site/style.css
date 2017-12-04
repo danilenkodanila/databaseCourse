@@ -72,6 +72,10 @@ a.button-ut:focus{
 	.th-font-width{
 		font-size: 11px;
 	}
+	.pddng{
+		padding-left: none;
+		 padding:0;
+	}
 }
 
 @media screen and (min-width: 40em) and (max-width: 63.9375em) {
@@ -81,11 +85,21 @@ a.button-ut:focus{
 	.th-font-width{
 		font-size: 14px;
 	}
+	.pddng{
+		padding-left: none;
+		 padding:0;
+	}
+}
+@media screen and (min-width: 64em) {
+    .pddng{
+	padding-left: 0.5em;
+	}
 }
 .td-width50{
 	max-width: 50px;
 	word-wrap: break-word;
 }
+
 /*.content-checkBox {
   padding: 10px;
   background-color: #c0ffee;
