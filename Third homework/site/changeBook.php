@@ -80,7 +80,7 @@
                 Автор:
               </div>
               <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
-                <input class="name" name="author" placeholder="id" value="';
+                <input class="name" name="author" placeholder="Автор" value="';
           echo $row["author"];
           echo '" aria-describedby="name-format">
               </div>
@@ -88,7 +88,7 @@
                 <div class="pddng">Название:</div>
               </div>
               <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
-                <input class="name" name="title" placeholder="id" value="';
+                <input class="name" name="title" placeholder="Название" value="';
           echo $row["title"];
           echo '" aria-describedby="name-format">
               </div>
@@ -100,7 +100,7 @@
                 Жанр:
               </div>
               <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
-                <input class="name" name="genre" placeholder="id" value="';
+                <input class="name" name="genre" placeholder="Жанр" value="';
           echo $row["genre"];
           echo '" aria-describedby="name-format">
               </div>
@@ -108,7 +108,7 @@
                 <div class="pddng">Цена:</div>
               </div>
               <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
-                <input class="name" name="price" placeholder="id" value="';
+                <input class="name" name="price" placeholder="Цена" value="';
           echo $row["price"];
           echo '" aria-describedby="name-format">
               </div>
@@ -120,7 +120,7 @@
                 Количество:
               </div>
               <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
-                <input class="name" name="amount" placeholder="id" value="';
+                <input class="name" name="amount" placeholder="Количество" value="';
           echo $row["amount"];
           echo'" aria-describedby="name-format">
               </div>
