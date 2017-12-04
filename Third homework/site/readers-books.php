@@ -76,12 +76,16 @@
         }
       }
       $sql = substr($sql, 0, -5);
-      $sql.= " group by readers.id";
+      $sql.= "group by readers.id";
+      // echo $sql;
 
       $sth = $dbh->prepare($sql);
       $sth->execute($array);
       $result = $sth->fetchAll();
-      // echo $sql;
+
+      
+
+      // var_dump($result);
       if (!empty($result)){
         echo '<div class="grid-x">
             <div class="cell small-8 small-offset-2 medium-6 medium-offset-3 large-6 large-offset-3">
@@ -98,7 +102,13 @@
 
         foreach($result as $row) {
           // echo $row["issueCount"];
-          if ($row["issueCount"] == 0) {
+          $sql2 = "SELECT COUNT(*) FROM issue WHERE id_reader = ? AND date_e IS NULL";
+          $sth1 = $dbh->prepare($sql2);
+          $sth1->execute(array($row["id"]));
+          $result1 = $sth1->fetchAll();
+          // var_dump($result1);
+
+          if ($result1[0][0] == 0) {
             echo '<td class="td-width50" style="background-color: white;">';
             echo ($row["id"]);
             echo '</td><td class="td-width50" style="background-color: white;">';
