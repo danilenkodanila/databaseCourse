@@ -73,68 +73,73 @@
       if ($id_book <> "" ){
         $sql = "SELECT books.id, authors.name as author, books.title, genre.name as genre, books.price, books.amount FROM books INNER JOIN genre ON books.id_genre = genre.id INNER JOIN authors ON books.id_author = authors.id WHERE books.id = ?";
         $result = insertSelect([$id_book],$sql);
-        foreach($result as $row){
-          echo '<form action="changeBook.php" method="post">
-            <div class="grid-x">
-              <div class="cell small-4 medium-2 small-offset-2 medium-offset-3 large-1 large-offset-3">
-                Автор:
+        if (!empty($result)){
+          foreach($result as $row){
+            echo '<form action="changeBook.php" method="post">
+              <div class="grid-x">
+                <div class="cell small-4 medium-2 small-offset-2 medium-offset-3 large-1 large-offset-3">
+                  Автор:
+                </div>
+                <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
+                  <input class="name" name="author" placeholder="Автор" value="';
+            echo $row["author"];
+            echo '" aria-describedby="name-format">
+                </div>
+                <div class="cell small-4 small-offset-2 medium-2 medium-offset-3 large-1 large-offset-0">
+                  <div class="pddng">Название:</div>
+                </div>
+                <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
+                  <input class="name" name="title" placeholder="Название" value="';
+            echo $row["title"];
+            echo '" aria-describedby="name-format">
+                </div>
+                <div class="cell small-4 medium-4 medium-offset-0 large-1 large-offset-0">
+                </div>
               </div>
-              <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
-                <input class="name" name="author" placeholder="Автор" value="';
-          echo $row["author"];
-          echo '" aria-describedby="name-format">
+              <div class="grid-x">
+                <div class="cell small-4 medium-2 small-offset-2 medium-offset-3 large-1 large-offset-3">
+                  Жанр:
+                </div>
+                <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
+                  <input class="name" name="genre" placeholder="Жанр" value="';
+            echo $row["genre"];
+            echo '" aria-describedby="name-format">
+                </div>
+                <div class="cell small-4 small-offset-2 medium-2 medium-offset-3 large-1 large-offset-0">
+                  <div class="pddng">Цена:</div>
+                </div>
+                <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
+                  <input class="name" name="price" placeholder="Цена" value="';
+            echo $row["price"];
+            echo '" aria-describedby="name-format">
+                </div>
+                <div class="cell small-4 medium-4 medium-offset-0 large-1 large-offset-0">
+                </div>
               </div>
-              <div class="cell small-4 small-offset-2 medium-2 medium-offset-3 large-1 large-offset-0">
-                <div class="pddng">Название:</div>
+              <div class="grid-x">
+                <div class="cell small-4 medium-2 small-offset-2 medium-offset-3 large-1 large-offset-3">
+                  Количество:
+                </div>
+                <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
+                  <input class="name" name="amount" placeholder="Количество" value="';
+            echo $row["amount"];
+            echo'" aria-describedby="name-format">
+                </div>
+                <div class="cell small-8 small-offset-2 medium-6 medium-offset-3 large-2 large-offset-1">
+                  <button class="button-search" type="submit" value="Submit">Сохранить</button>
+                </div>
+                <input type="hidden" name="action" value="form2"/>
+                <input type="hidden" name="idBook" value="';
+            echo $row["id"];
+            echo '"/>
               </div>
-              <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
-                <input class="name" name="title" placeholder="Название" value="';
-          echo $row["title"];
-          echo '" aria-describedby="name-format">
-              </div>
-              <div class="cell small-4 medium-4 medium-offset-0 large-1 large-offset-0">
-              </div>
-            </div>
-            <div class="grid-x">
-              <div class="cell small-4 medium-2 small-offset-2 medium-offset-3 large-1 large-offset-3">
-                Жанр:
-              </div>
-              <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
-                <input class="name" name="genre" placeholder="Жанр" value="';
-          echo $row["genre"];
-          echo '" aria-describedby="name-format">
-              </div>
-              <div class="cell small-4 small-offset-2 medium-2 medium-offset-3 large-1 large-offset-0">
-                <div class="pddng">Цена:</div>
-              </div>
-              <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
-                <input class="name" name="price" placeholder="Цена" value="';
-          echo $row["price"];
-          echo '" aria-describedby="name-format">
-              </div>
-              <div class="cell small-4 medium-4 medium-offset-0 large-1 large-offset-0">
-              </div>
-            </div>
-            <div class="grid-x">
-              <div class="cell small-4 medium-2 small-offset-2 medium-offset-3 large-1 large-offset-3">
-                Количество:
-              </div>
-              <div class="cell small-4 medium-4 medium-offset-0 large-2 large-offset-0">
-                <input class="name" name="amount" placeholder="Количество" value="';
-          echo $row["amount"];
-          echo'" aria-describedby="name-format">
-              </div>
-              <div class="cell small-8 small-offset-2 medium-6 medium-offset-3 large-2 large-offset-1">
-                <button class="button-search" type="submit" value="Submit">Сохранить</button>
-              </div>
-              <input type="hidden" name="action" value="form2"/>
-              <input type="hidden" name="idBook" value="';
-          echo $row["id"];
-          echo '"/>
-            </div>
-          </form>';
+            </form>';
 
-        }
+          } 
+      }
+      else {
+            noValue("Такой книги нет ");
+          }
 
 
       } else {

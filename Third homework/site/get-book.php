@@ -64,23 +64,17 @@
 
   if (!empty($_POST)){
     $id_reader = $_POST['id_reader'];
-    $id_book = $_POST['id_book'];
-
-    $sth1 = $dbh->prepare("SELECT amount FROM books WHERE id = ?");
-    $sth1->execute(array($id_book));
-    $result1 = $sth1->fetchAll();
-
-  
+    $id_book = $_POST['id_book'];  
   
     //проверяем не пустые ли поля
     if ($id_reader <> "" && $id_book <> "") {
       
-      $sth1 = $dbh->prepare("SELECT amount FROM books WHERE id = ?");
-      $sth1->execute(array($id_book));
+      $sth1 = $dbh->prepare("SELECT (SELECT amount FROM books WHERE id = ?) AS amount, (SELECT id FROM readers WHERE id = ?) AS id");
+      $sth1->execute(array($id_book, $id_reader));
       $result1 = $sth1->fetchAll();
-
-      //проверяем наличие книги
-      if ($result1[0]["amount"] <> "0") {
+      
+      // проверяем наличие книги
+      if ($result1[0]["amount"] <> null && $result1[0]["amount"] <> "0" && $result1[0]["id"] <> null) {
         date_default_timezone_set('Asia/Vladivostok');
         $date = date('Y-m-d', time());
 
@@ -91,10 +85,11 @@
         $int -= 1;
         $sql = $dbh->prepare("UPDATE books SET amount = $int WHERE id = $id_book");
         $sql->execute(array($int, $id_book));
+
         noValue("Книга успешно выдана");
 
       } else {
-        noValue("Книги нет в наличии");
+        noValue("Такой книги нет/Такого читателя нет/Книги нет в наличии/");
       }
     } else {
       noValue("Введите оба параметра");
