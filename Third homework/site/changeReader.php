@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Поиск читателя</title>
+    <title>Изменить читателя</title>
     <link rel="stylesheet" href="css/foundation.css">
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="style.css">
@@ -19,61 +19,37 @@
       </div>
     </header>
 
-<form action="changeReader.php" method="post">
-<div class="grid-x">
-  <div class="cell small-4 small-offset-2 medium-2 medium-offset-3 large-2 large-offset-3">
-     <input class="name" name="id" placeholder="id читателя" value="" aria-describedby="name-format">
+  <form action="changeReader.php" method="post">
+  <div class="grid-x">
+    <div class="cell small-4 small-offset-2 medium-2 medium-offset-3 large-2 large-offset-3">
+       <input class="name" name="id" placeholder="id читателя" value="" aria-describedby="name-format">
+    </div>
+    <div class="cell small-4 small-offset-0 medium-2 medium-offset-2 large-2 large-offset-2">
+      <button class="button-search" type="submit" value="Submit">Найти</button>
+    </div>
+    <input type="hidden" name="action" value="form1" />
   </div>
-  <div class="cell small-4 small-offset-0 medium-2 medium-offset-2 large-2 large-offset-2">
-    <button class="button-search" type="submit" value="Submit">Найти</button>
-  </div>
-  <input type="hidden" name="action" value="form1" />
-</div>
-</form>
+  </form>
 
 
 
 
 
 <?php
-  function noValue($outputText){
-    echo'<div class="grid-x">
-           <div class="small-3 large-3 medium-3 cell"></div>
-           <div class="small-6 large-6 medium-6 cell et">',$outputText,'</div>
-           <div class="small-3 large-3 medium-3 cell"></div>
-         </div>';
-  }
-  function insertSelect($array, $sql){ 
-    $user = "admin";
-    $pass = "76543210";
-    try {
-      $dbh = new PDO('mysql:host=localhost;dbname=library;charset=utf8', $user, $pass);
-    } catch (PDOException $e) {
-        die('Подключение не удалось: ' . $e->getMessage());
-    }
-    $sth = $dbh->prepare($sql);
-    $sth->execute($array);
-    $result = $sth->fetchAll();
-    $dbh = null;
-    return $result;
-  }
+  include_once("ut.php");
+  $dbh = connect();
 
-  $user = "admin";
-  $pass = "76543210";
-  try {
-    $dbh = new PDO('mysql:host=localhost;dbname=library;charset=utf8', $user, $pass);
-  } catch (PDOException $e) {
-      die('Подключение не удалось: ' . $e->getMessage());
-  }
-
+  //проверяем с какой формы пришел post
   if(isset($_POST['action']) && $_POST['action'] == 'form1') {
     if (!empty($_POST)){
-      $id_book = $_POST['id'];
+      $id_reader = $_POST['id'];
 
-      if ($id_book <> "" ){
+      if ($id_reader <> "" ){
+        //выбираем все из таблицы читатели
         $sql = "SELECT * FROM `readers` WHERE id=?";
-        $result = insertSelect([$id_book],$sql);
+        $result = executeRequest($sql,[$id_reader]);
         
+        //проверяем, существует ли читатель
         if (!empty($result)) {
           foreach($result as $row){
             echo '<form action="changeReader.php" method="post">
@@ -135,9 +111,11 @@
       $phone = $_POST['phone'];
       $idReader = $_POST['idReader'];
 
+      //проверяем заполненность всех форм
       if ($name <> "" && $email <> "" &&  $phone <> ""){
+          //обновляем данные
           $sql = "UPDATE readers SET name='$name', email='$email', phone='$phone' WHERE id='$idReader'";
-          $dbh->query($sql);
+          queryRequest($sql);
           noValue("Данные успешно обновлены");
       } else {
           noValue("Вы не ввели все данные. Попробуйте снова");
@@ -160,8 +138,5 @@
     <script src="js/vendor/what-input.js"></script>
     <script src="js/vendor/foundation.js"></script>
     <script src="js/app.js"></script>
-    <script type="text/javascript">
-    $(document).foundation();
-    </script>
   </body>
 </html>

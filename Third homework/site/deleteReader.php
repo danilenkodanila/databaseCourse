@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Поиск читателя</title>
+    <title>Удаления читателя</title>
     <link rel="stylesheet" href="css/foundation.css">
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="style.css">
@@ -34,64 +34,45 @@
 
 
 
-<?php
-  function noValue($outputText){
-    echo'<div class="grid-x">
-           <div class="small-3 large-3 medium-3 cell"></div>
-           <div class="small-6 large-6 medium-6 cell et">',$outputText,'</div>
-           <div class="small-3 large-3 medium-3 cell"></div>
-         </div>';
-  }
-  function insertSelect($array, $sql){ 
-    $user = "admin";
-    $pass = "76543210";
-    try {
-      $dbh = new PDO('mysql:host=localhost;dbname=library;charset=utf8', $user, $pass);
-    } catch (PDOException $e) {
-        die('Подключение не удалось: ' . $e->getMessage());
-    }
-    $sth = $dbh->prepare($sql);
-    $sth->execute($array);
-    $result = $sth->fetchAll();
-    $dbh = null;
-    return $result;
-  }
+  <?php
+    include_once("ut.php");
+    $dbh = connect();
 
-  $user = "admin";
-  $pass = "76543210";
-  try {
-    $dbh = new PDO('mysql:host=localhost;dbname=library;charset=utf8', $user, $pass);
-  } catch (PDOException $e) {
-      die('Подключение не удалось: ' . $e->getMessage());
-  }
 
-  if (!empty($_POST)){
-    $id = $_POST['id'];
+    if (!empty($_POST)){
+      $id = $_POST['id'];
 
-    if ($id <> ""){
-      $sql = "SELECT readers.id, readers.name, readers.email, readers.phone, count(issue.id_reader) as issueCount FROM readers LEFT JOIN issue ON readers.id = issue.id_reader WHERE readers.id = ? AND date_e IS NULL group by readers.id";
-      $sth = $dbh->prepare($sql);
-      $sth->execute(array($id));
-      $result = $sth->fetchAll();
-      if ( empty($result) || $result[0]["issueCount"] == 0){
-        $sql = "DELETE FROM issue WHERE id_reader = '$id'";
-        $dbh->query($sql);
-        $sql = "DELETE FROM readers WHERE id = '$id' LIMIT 1";
-        $dbh->query($sql);
-        noValue("Читатель удален");
+      if ($id <> ""){
+        $sql = "SELECT readers.id, readers.name, readers.email, readers.phone, count(issue.id_reader) as issueCount FROM readers LEFT JOIN issue ON readers.id = issue.id_reader WHERE readers.id = ? AND date_e IS NULL group by readers.id";
+        //проверяем есть ли такой читатель
+        //и есть ли у него несданные книги
+        $result = executeRequest($sql, array($id));
+        if ( (!empty($result)) && $result[0]["issueCount"] == 0){
+          //удаляем все записи из issue 
+          $sql = "DELETE FROM issue WHERE id_reader = '$id'";
+          queryRequest($sql);
+          //удаляем читателя
+          $sql = "DELETE FROM readers WHERE id = '$id' LIMIT 1";
+          queryRequest($sql);
+          noValue("Читатель удален");
+        } else {
+          //проверяем что не так - читателя нет или же у него есть долги
+          if (empty($result)) {
+            noValue("Такого читателя не существует");
+          } else {
+            noValue("Читатель не может быть удален. Читатель не сдал все книги");
+          }
+        }
       } else {
-        noValue("Читатель не может быть удален. Читатель не сдал все книги");
+        noValue("Введите id читателя");
       }
-    } else {
-      noValue("Введите id читателя");
+
     }
 
-  }
+  //UPDATE issue SET date_e='2017-12-08' WHERE id_reader = 18 AND id_book= 3 LIMIT 1
 
-//UPDATE issue SET date_e='2017-12-08' WHERE id_reader = 8 AND id_book= 2 LIMIT 1
 
-?>
-</div>
+  ?>
                    
   <div class="footer">
   </div>
@@ -102,8 +83,5 @@
     <script src="js/vendor/what-input.js"></script>
     <script src="js/vendor/foundation.js"></script>
     <script src="js/app.js"></script>
-    <script type="text/javascript">
-    $(document).foundation();
-    </script>
   </body>
 </html>

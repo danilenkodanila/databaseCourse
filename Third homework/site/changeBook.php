@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Поиск читателя</title>
+    <title>Изменить книгу</title>
     <link rel="stylesheet" href="css/foundation.css">
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="style.css">
@@ -19,60 +19,34 @@
       </div>
     </header>
 
-<form action="changeBook.php" method="post">
-<div class="grid-x">
-  <div class="cell small-4 small-offset-2 medium-2 medium-offset-3 large-2 large-offset-3">
-     <input class="name" name="id" placeholder="id книги" value="" aria-describedby="name-format">
-  </div>
-  <div class="cell small-4 small-offset-0 medium-2 medium-offset-2 large-2 large-offset-2">
-    <button class="button-search" type="submit" value="Submit">Найти</button>
-  </div>
-  <input type="hidden" name="action" value="form1" />
-</div>
-</form>
+    <form action="changeBook.php" method="post">
+      <div class="grid-x">
+        <div class="cell small-4 small-offset-2 medium-2 medium-offset-3 large-2 large-offset-3">
+           <input class="name" name="id" placeholder="id книги" value="" aria-describedby="name-format">
+        </div>
+        <div class="cell small-4 small-offset-0 medium-2 medium-offset-2 large-2 large-offset-2">
+          <button class="button-search" type="submit" value="Submit">Найти</button>
+        </div>
+        <input type="hidden" name="action" value="form1" />
+      </div>
+    </form>
 
 
 
 
 
 <?php
-  function noValue($outputText){
-    echo'<div class="grid-x">
-           <div class="small-3 large-3 medium-3 cell"></div>
-           <div class="small-6 large-6 medium-6 cell et">',$outputText,'</div>
-           <div class="small-3 large-3 medium-3 cell"></div>
-         </div>';
-  }
-  function insertSelect($array, $sql){ 
-    $user = "admin";
-    $pass = "76543210";
-    try {
-      $dbh = new PDO('mysql:host=localhost;dbname=library;charset=utf8', $user, $pass);
-    } catch (PDOException $e) {
-        die('Подключение не удалось: ' . $e->getMessage());
-    }
-    $sth = $dbh->prepare($sql);
-    $sth->execute($array);
-    $result = $sth->fetchAll();
-    $dbh = null;
-    return $result;
-  }
+  include_once("ut.php");
+  $dbh = connect();
 
-  $user = "admin";
-  $pass = "76543210";
-  try {
-    $dbh = new PDO('mysql:host=localhost;dbname=library;charset=utf8', $user, $pass);
-  } catch (PDOException $e) {
-      die('Подключение не удалось: ' . $e->getMessage());
-  }
-
+  //Выбор между 1 формой и второй
   if(isset($_POST['action']) && $_POST['action'] == 'form1') {
     if (!empty($_POST)){
       $id_book = $_POST['id'];
 
       if ($id_book <> "" ){
         $sql = "SELECT books.id, authors.name as author, books.title, genre.name as genre, books.price, books.amount FROM books INNER JOIN genre ON books.id_genre = genre.id INNER JOIN authors ON books.id_author = authors.id WHERE books.id = ?";
-        $result = insertSelect([$id_book],$sql);
+        $result = executeRequest($sql,[$id_book]);
         if (!empty($result)){
           foreach($result as $row){
             echo '<form action="changeBook.php" method="post">
@@ -134,87 +108,89 @@
             echo '"/>
               </div>
             </form>';
-
           } 
-      }
-      else {
-            noValue("Такой книги нет ");
-          }
-
-
+        }
+        else {
+          noValue("Такой книги нет ");
+        }
       } else {
         noValue("Введите id книги");
       }
-
-
     }
   } else if(isset($_POST['action']) && $_POST['action'] == 'form2') {
-    if (!empty($_POST)){
-      $author = $_POST['author'];
-      $title = $_POST['title'];
-      $genre = $_POST['genre'];
-      $price = $_POST['price'];
-      $amount = $_POST['amount'];
-      $idBook = $_POST['idBook'];
-      if ($price == ""){
-        $price = 0;
-      } 
-      if ($amount == ""){
-        $amount = 0;
-      } 
+      if (!empty($_POST)){
+        $author = $_POST['author'];
+        $title = $_POST['title'];
+        $genre = $_POST['genre'];
+        $price = $_POST['price'];
+        $amount = $_POST['amount'];
+        $idBook = $_POST['idBook'];
+        //если пользователь не ввел цену/кол-во, то 0
+        if ($price == ""){
+          $price = 0;
+        } 
+        if ($amount == ""){
+          $amount = 0;
+        } 
+        //проверяем 3 обязательных параметра: автор, название и жанр
         if ($author <> "" && $title <> "" &&  $genre <> ""){
           $sql = "SELECT ( SELECT id FROM authors WHERE name = ?) as autId, (SELECT id FROM genre WHERE name = ?) as genId ";
-          
-          $result = insertSelect([$author,$genre],$sql);
 
+          //получем id автора и жанра
+          $result = executeRequest($sql,[$author,$genre]);
           $id_author = $result[0][0];
           $id_genre = $result[0][1];
 
-          
-
+          //если автора нет в БД, то сразу добавляем книгу в БД
           if ($id_author == null){
-            if ($id_author == null) {
-              $sth = $dbh->prepare("INSERT INTO authors (name) VALUES(?)");
-              $sth->execute(array($_POST['author']));
-              $result = $sth->fetchAll();
-            } 
+            //добавляем автора в БД
+            $result = executeRequest("INSERT INTO authors (name) VALUES(?)",array($_POST['author']));
+            //если жанра нет в БД, то добавляем его
             if ($id_genre == null) {
-              $sth = $dbh->prepare("INSERT INTO genre (name) VALUES(?)");
-              $sth->execute(array($_POST['genre']));
-              $result = $sth->fetchAll();
+              $result = executeRequest("INSERT INTO genre (name) VALUES(?)",array($_POST['genre']));
             } 
-            $result = insertSelect([$author,$genre],$sql);
+            //получаем id автора и id жанра из БД [автор точно был добавлен, поэтому нам нужен его id]
+            $result = executeRequest($sql,[$author,$genre]);
             $id_author = $result[0][0];
             $id_genre = $result[0][1];
 
             $sql = "UPDATE books SET id_author='$id_author', title='$title', id_genre='$id_genre', price='$price', amount='$amount' WHERE id='$idBook'";
-            $dbh->query($sql);
+            queryRequest($sql);
             noValue("Книга успешно обновлена");
 
-          } else {
-            if ($id_genre == null) {
-              $sth = $dbh->prepare("INSERT INTO genre (name) VALUES(?)");
-              $sth->execute(array($_POST['genre']));
-              $result = $sth->fetchAll();
-              $result = insertSelect([$author,$genre],$sql);
-              $id_genre = $result[0][1];
-            } 
-            $sth1 = $dbh->prepare("SELECT id FROM books WHERE id_author = ? AND title = ? AND id_genre = ?");
-            $sth1->execute(array($id_author,$title,$id_genre));
-            $result1 = $sth1->fetchAll();
+          } else { 
+            $result1 = executeRequest("SELECT id FROM books WHERE id_author = ? AND title = ?",array($id_author,$title));
+            //проверяем, если ли книга с таким автором и названием в БД
+            //в задании написано, что жанр не важен. книги совпадают, если у них одинаковы автор и название
             if (!empty($result1)){
+              //если книга с таким автором и названием уже есть базе
+              //то проверяем, совпадает ли id книги, который ввел пользователь с id в базе
+              //[исключаем ситуацию, когда пользователь выбрал книгу А
+              // и меняет ей название и автора на книгу В]
               if ($result1[0]["id"] == $idBook) {
-                $sql = "UPDATE books SET price='$price', amount='$amount' WHERE id='$idBook'";
-                $dbh->query($sql);
+                //если жанра нет в БД, то добавляем
+                if ($id_genre == null) {
+                  $result = executeRequest("INSERT INTO genre (name) VALUES(?)",array($_POST['genre']));
+                  $result = executeRequest($sql,[$author,$genre]);
+                  $id_genre = $result[0][1];
+                }
+                //обновляем книгу
+                $sql = "UPDATE books SET price='$price', amount='$amount', id_genre='$id_genre' WHERE id='$idBook'";
+                queryRequest($sql);
                 noValue("Книга успешно обновлена");
-
               } else {
                 noValue("Такая книга уже есть в базе. Попробуйте снова");
               }
             } else {
-
+              //если жанра нет в БД, то добавляем
+              if ($id_genre == null) {
+                $result = executeRequest("INSERT INTO genre (name) VALUES(?)",array($_POST['genre']));
+                $result = executeRequest($sql,[$author,$genre]);
+                $id_genre = $result[0][1];
+              }
+              //обновляем книгу
               $sql = "UPDATE books SET id_author='$id_author', title='$title', id_genre='$id_genre', price='$price', amount='$amount' WHERE id='$idBook'";
-              $dbh->query($sql);
+              queryRequest($sql);
               noValue("Книга успешно обновлена");
             }
 
@@ -225,10 +201,8 @@
       }
   }
 
+  ?>
 
-
-?>
-</div>
                    
   <div class="footer">
   </div>
@@ -239,8 +213,5 @@
     <script src="js/vendor/what-input.js"></script>
     <script src="js/vendor/foundation.js"></script>
     <script src="js/app.js"></script>
-    <script type="text/javascript">
-    $(document).foundation();
-    </script>
   </body>
 </html>
