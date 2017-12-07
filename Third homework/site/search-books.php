@@ -42,9 +42,9 @@
     </div>
     </form>
 
-
+    
     <div class="grid-x">
-      <div class="cell small-10 small-offset-2 medium-12 medium-offset-3 large-12 large-offset-3 th-font-width">
+      <div class="cell small-10 small-offset-2 medium-12 medium-offset-3 large-6 th-font-width">
         <?php
           include_once("ut.php");
           $dbh = connect();
