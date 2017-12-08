@@ -33,7 +33,6 @@
 
 
 
-
   <?php
     include_once("ut.php");
     $dbh = connect();
@@ -58,7 +57,19 @@
         } else {
           //проверяем что не так - читателя нет или же у него есть долги
           if (empty($result)) {
-            noValue("Такого читателя не существует");
+            $sql = "SELECT readers.id, readers.name, readers.email, readers.phone, count(issue.id_reader) as issueCount FROM readers LEFT JOIN issue ON readers.id = issue.id_reader WHERE readers.id = ? group by readers.id";
+            //проверяем есть ли такой читатель — у него могут быть сданные книги
+            $result = executeRequest($sql, array($id));
+            if (empty($result)) {
+               noValue("Такого читателя не существует");
+            } else {
+              $sql = "DELETE FROM issue WHERE id_reader = '$id'";
+              queryRequest($sql);
+              $sql = "DELETE FROM readers WHERE id = '$id' LIMIT 1";
+              queryRequest($sql);
+              noValue("Читатель удален");
+            }
+
           } else {
             noValue("Читатель не может быть удален. Читатель не сдал все книги");
           }
