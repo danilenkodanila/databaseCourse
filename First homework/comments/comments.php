@@ -95,51 +95,42 @@ div.over:nth-child(2n) {
          $json = file_get_contents($filename);
          // Декодируем
          $json = json_decode($json, true);
-         if (!empty($json)){
-            foreach ($json as $key => $value) {
-               echo '<div class="over">';
-               echo '<div class="date">';
-               echo date('d.m.Y', $value['date']);
-               echo '</div>';
-               echo '<div class="comment">';
-               echo $value['text'];
-               echo '</div>';
-               echo '</div>'; 
-            } 
-         }
-         
-      ?>
-      </section>
+         if (!empty($json)) :
+            foreach ($json as $value) :
+        ?>
+        
+            <div class="over">
+                <div class="date">
+                   <?=$value['date'];?>
+                </div>
+               <div class="comment">
+                   <?=$value['text'];?>
+               </div>
+            </div> 
+        
+            <?php endforeach; ?>
+        <?php endif; ?>
+
       <div class="form-style-6">
-      <form action="/comments.php" method="get">
+      <form action="comments.php" method="post">
          <textarea name="text" name="text" placeholder="Text" required></textarea>
          <br>
-         <input type="submit" value="Send"/>
+         <input type="submit" name="submit" value="Send"/>
       </form> 
     
    <?php
       //запись в файл
-      if (!empty($_GET)) {
-
-         $filename = 'comments.json';
-         date_default_timezone_set('Asia/Vladivostok');
-         $array = array(
-            "date" => time(),
-            "text" => $_GET['text'],
+      if (isset($_POST['submit'])) {
+         $json[] = array(
+            "date" => date("d-m-Y"),
+            "text" => $_POST['text'],
          );
-         
-         $json = file_get_contents($filename);
-         $json = json_decode($json, true);
-         $json[] = $array;
          $json = json_encode($json);
          file_put_contents($filename, $json);
          //немного говнокода, мне лень 
-         header("Refresh:0; url=comments.php");
+         header("Location: comments.php");
       }  
    ?>
-    
-</div>
+    </div>
 </body>
 </html>
-
-
